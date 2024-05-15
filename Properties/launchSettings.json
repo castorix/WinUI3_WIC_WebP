@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "WinUI3_WIC_Webp (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "WinUI3_WIC_Webp (Unpackaged)": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

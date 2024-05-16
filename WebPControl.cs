@@ -109,45 +109,35 @@ namespace WinUI3_WIC_WebP
         {
             if (stopWatch != null)
             {
-                GetBitmapFromFrame(m_nCurrentFrame);
-                Render(m_nCurrentFrame);
-                var nElapsedTime = stopWatch.ElapsedMilliseconds;
-                double nDuration = listFrames.ElementAt((int)m_nCurrentFrame).Duration;
-                if (nElapsedTime >= nDuration)
+                if (listFrames.Count >= 1)
                 {
-                    m_nCurrentFrame++;
-                    if (m_nCurrentFrame >= m_nNbFrames)
+                    GetBitmapFromFrame(m_nCurrentFrame);
+                    Render(m_nCurrentFrame);
+                    var nElapsedTime = stopWatch.ElapsedMilliseconds;
+                    double nDuration = listFrames.ElementAt((int)m_nCurrentFrame).Duration;
+                    if (nElapsedTime >= nDuration)
                     {
-                        m_nCurrentFrame = 0;
-                        m_nCurrentLoop += 1;                       
+                        m_nCurrentFrame++;
+                        if (m_nCurrentFrame >= m_nNbFrames)
+                        {
+                            m_nCurrentFrame = 0;
+                            m_nCurrentLoop += 1;
+                        }
+                        if (m_nLoopCount > 0 && m_nCurrentLoop >= m_nLoopCount)
+                        {
+                            stopWatch.Reset();
+                            stopWatch.Stop();
+                        }
+                        else
+                            stopWatch.Restart();
                     }
-                    if (m_nLoopCount > 0 && m_nCurrentLoop >= m_nLoopCount)
-                    {
-                        stopWatch.Reset();
-                        stopWatch.Stop();
-                    }
-                    else
-                        stopWatch.Restart();                         
                 }
             }
         }
 
-        public void LoadFile(string sFile, TextBlock tbWidth = null, TextBlock tbHeight = null, TextBlock tbAnimation = null)
-        {
-            m_bAnimation = false;
-            m_nCanvasWidth = 0;
-            m_nCanvasHeight = 0;
-            m_nFrameWidth = 0;
-            m_nFrameHeight = 0;
-            m_BackgroundColor = System.Drawing.Color.Black;
-            m_nLoopCount = 0;
-            m_nCurrentLoop = 0;
-            m_nFrameDuration = 90;
-            m_nTotalDuration = 0;
-            m_nCurrentFrame = 0;
-            m_nNbFrames = 0;
-            listFrames.Clear();
-
+        public bool LoadFile(string sFile, TextBlock tbWidth = null, TextBlock tbHeight = null, TextBlock tbAnimation = null)
+        {  
+            bool bFileOK = false;
             IntPtr hmmio;
             uint mmr;
             hmmio = mmioOpen(sFile, IntPtr.Zero, MMIO_READ);
@@ -158,6 +148,21 @@ namespace WinUI3_WIC_WebP
                 mmr = mmioDescend(hmmio, ref mmckRiff, IntPtr.Zero, MMIO_FINDRIFF);
                 if (mmr == MMSYSERR_NOERROR)
                 {
+                    bFileOK = true;
+                    m_bAnimation = false;
+                    m_nCanvasWidth = 0;
+                    m_nCanvasHeight = 0;
+                    m_nFrameWidth = 0;
+                    m_nFrameHeight = 0;
+                    m_BackgroundColor = System.Drawing.Color.Black;
+                    m_nLoopCount = 0;
+                    m_nCurrentLoop = 0;
+                    m_nFrameDuration = 90;
+                    m_nTotalDuration = 0;
+                    m_nCurrentFrame = 0;
+                    m_nNbFrames = 0;
+                    listFrames.Clear();
+
                     MMCKINFO mmck = new MMCKINFO();
                     while (mmioDescend(hmmio, ref mmck, ref mmckRiff, 0) == MMSYSERR_NOERROR)
                     {
@@ -305,36 +310,40 @@ namespace WinUI3_WIC_WebP
                     }           
                 }
                 mmioClose(hmmio, 0);
-            }    
+            }
 
-            SafeRelease(ref m_pWICBitmapDecoder);
-            LoadBitmapDecoder(sFile);
-
-            this.Width = m_nCanvasWidth;
-            this.Height = m_nCanvasHeight;
-
-            if (tbWidth != null)
-                tbWidth.Text = m_nCanvasWidth.ToString();
-            if (tbHeight != null)
-                tbHeight.Text = m_nCanvasHeight.ToString();
-            if (tbAnimation != null)
+            if (bFileOK)
             {
-                tbAnimation.Text = m_bAnimation ? "Yes" : "No";
-                if (m_bAnimation)
+                SafeRelease(ref m_pWICBitmapDecoder);
+                LoadBitmapDecoder(sFile);
+
+                this.Width = m_nCanvasWidth;
+                this.Height = m_nCanvasHeight;
+
+                if (tbWidth != null)
+                    tbWidth.Text = m_nCanvasWidth.ToString();
+                if (tbHeight != null)
+                    tbHeight.Text = m_nCanvasHeight.ToString();
+                if (tbAnimation != null)
                 {
-                    tbAnimation.Text += (" (" + m_nNbFrames.ToString() + " frames)");
-                    if (m_nLoopCount > 0)
-                        tbAnimation.Text += (" (" + m_nLoopCount.ToString() + " loops)");
+                    tbAnimation.Text = m_bAnimation ? "Yes" : "No";
+                    if (m_bAnimation)
+                    {
+                        tbAnimation.Text += (" (" + m_nNbFrames.ToString() + " frames)");
+                        if (m_nLoopCount > 0)
+                            tbAnimation.Text += (" (" + m_nLoopCount.ToString() + " loops)");
+                    }
                 }
-            }
 
-            if (stopWatch == null)
-            {
-                stopWatch = new Stopwatch();
-                stopWatch.Start();
+                if (stopWatch == null)
+                {
+                    stopWatch = new Stopwatch();
+                    stopWatch.Start();
+                }
+                else
+                    stopWatch.Restart();
             }
-            else
-                stopWatch.Restart();           
+            return bFileOK;
         }
 
         Stopwatch stopWatch = null; 

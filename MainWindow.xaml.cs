@@ -127,7 +127,12 @@ namespace WinUI3_WIC_WebP
             string sFilePath = await OpenFileDialog();
             if (sFilePath != string.Empty)
             {
-                WC1.LoadFile(sFilePath, tbWidth, tbHeight, tbAnimation);
+                if (! WC1.LoadFile(sFilePath, tbWidth, tbHeight, tbAnimation))
+                {
+                    Windows.UI.Popups.MessageDialog md = new Windows.UI.Popups.MessageDialog(sFilePath + " does not seem to be a WebP file !", "Information");
+                    WinRT.Interop.InitializeWithWindow.Initialize(md, hWndMain);
+                    _ = await md.ShowAsync();
+                }
             }
         }
 

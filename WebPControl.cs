@@ -430,7 +430,7 @@ namespace WinUI3_WIC_WebP
             if (m_pD2DDeviceContext != null)
             {
                 m_pD2DDeviceContext.BeginDraw();
-                D2D1_SIZE_F size = m_pD2DDeviceContext.GetSize();  
+                m_pD2DDeviceContext.GetSize(out D2D1_SIZE_F size);  
 
                 int nDisposal = 0;
                 if (nFrame > 0)

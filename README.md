@@ -4,7 +4,7 @@ Test control to play animated WebP files (also supported by a WebView2 control),
 
 From Google, WebP decoder is included on OS >= Windows 10
 
-(tested on Windows 10 22H2, Windows App SDK 1.4)
+(tested on Windows 10 22H2, Windows App SDK 1.4, 1.7.250401001)
 
 ![image](https://github.com/castorix/WinUI3_WIC_WebP/assets/22345506/443c4cd8-ab29-483b-9fd3-3cfd45abe152)
 
